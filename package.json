@@ -1,0 +1,54 @@
+{
+  "name": "rtl-mcp",
+  "version": "0.1.0",
+  "description": "MCP server that gives coding agents right-to-left awareness: lint layout for RTL breakage, normalise Arabic text, and detect script direction.",
+  "type": "module",
+  "bin": {
+    "rtl-mcp": "bin/rtl-mcp.js"
+  },
+  "exports": {
+    ".": "./src/server.js",
+    "./arabic": "./src/arabic.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "start": "node bin/rtl-mcp.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "rtl",
+    "arabic",
+    "hebrew",
+    "i18n",
+    "bidi",
+    "ai-agent",
+    "llm-tools",
+    "normalization"
+  ],
+  "author": "Khalel Hawary",
+  "license": "MIT",
+  "dependencies": {
+    "rtl-lint": "^0.1.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kahlelhawary-art/rtl-mcp.git"
+  },
+  "homepage": "https://github.com/kahlelhawary-art/rtl-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/kahlelhawary-art/rtl-mcp/issues"
+  }
+}
