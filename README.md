@@ -77,7 +77,7 @@ detectDirection("مرحبا React").direction;         // "mixed"
 
 ## Requirements
 
-Node.js 18.18 or newer.
+Node.js 20 or newer. (Node 18 reached end of life in April 2025.)
 
 ## License
 
