@@ -29,6 +29,12 @@ jobs:
       - name: Use a recent npm
         run: npm install -g npm@latest
 
+      # The conformance suite needs the official SDK, which is a
+      # devDependency — unlike rtl-lint, this package cannot test without
+      # installing first.
+      - name: Install
+        run: npm ci
+
       - name: Test before publishing
         run: |
           node --test

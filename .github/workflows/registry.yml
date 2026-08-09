@@ -32,6 +32,23 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      # The registry refuses to list a version npm does not have yet, and
+      # both workflows start from the same release event. Wait for the
+      # publish to land rather than racing it.
+      - name: Wait for the version to appear on npm
+        run: |
+          version=$(node -p "require('./package.json').version")
+          for attempt in $(seq 1 30); do
+            if npm view "rtl-mcp@$version" version >/dev/null 2>&1; then
+              echo "rtl-mcp@$version is on npm"
+              exit 0
+            fi
+            echo "attempt $attempt: not yet, waiting"
+            sleep 20
+          done
+          echo "rtl-mcp@$version never appeared on npm" >&2
+          exit 1
+
       - name: Log in with the workflow's own identity
         run: ./mcp-publisher login github-oidc --registry=https://registry.modelcontextprotocol.io
 
