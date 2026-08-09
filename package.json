@@ -1,6 +1,6 @@
 {
   "name": "rtl-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server that gives coding agents right-to-left awareness: lint layout for RTL breakage, normalise Arabic text, and detect script direction.",
   "type": "module",
   "bin": {
@@ -38,7 +38,7 @@
   "author": "Khalel Hawary",
   "license": "MIT",
   "dependencies": {
-    "rtl-lint": "^0.1.0"
+    "rtl-lint": "^0.3.0"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0"

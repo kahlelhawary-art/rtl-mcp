@@ -105,3 +105,43 @@ test("a bad argument comes back as an error result, not a crash", async () => {
 test("an unknown tool is rejected", async () => {
   await assert.rejects(() => client.callTool({ name: "nope", arguments: {} }), /Unknown tool/);
 });
+
+test("lint_rtl_code follows the base direction it is given", async () => {
+  const args = { code: '<div class="ml-4 text-right">x</div>', filename: "Card.tsx" };
+
+  const ltr = textOf(await client.callTool({ name: "lint_rtl_code", arguments: args }));
+  assert.match(ltr, /ms-4/);
+  assert.match(ltr, /text-end/);
+
+  // Arabic-first: right is the start side, so both map the other way.
+  const rtl = textOf(
+    await client.callTool({ name: "lint_rtl_code", arguments: { ...args, baseDir: "rtl" } }),
+  );
+  assert.match(rtl, /me-4/);
+  assert.match(rtl, /text-start/);
+});
+
+test("a bad base direction is an error the model can see", async () => {
+  const result = await client.callTool({
+    name: "lint_rtl_code",
+    arguments: { code: "<div/>", filename: "a.tsx", baseDir: "arabic" },
+  });
+  assert.equal(result.isError, true);
+  assert.match(textOf(result), /must be "ltr" or "rtl"/);
+});
+
+test("utilities already scoped to a direction are not reported", async () => {
+  const result = await client.callTool({
+    name: "lint_rtl_code",
+    arguments: { code: '<div class="ltr:left-3 rtl:right-3">x</div>', filename: "a.tsx", baseDir: "rtl" },
+  });
+  assert.match(textOf(result), /No RTL issues/);
+});
+
+test("both lint tools advertise the baseDir option", async () => {
+  const { tools } = await client.listTools();
+  for (const name of ["lint_rtl_code", "lint_rtl_path"]) {
+    const tool = tools.find((t) => t.name === name);
+    assert.deepEqual(tool.inputSchema.properties.baseDir.enum, ["ltr", "rtl"]);
+  }
+});

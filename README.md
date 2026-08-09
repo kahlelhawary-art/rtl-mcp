@@ -40,6 +40,8 @@ claude mcp add rtl -- npx -y rtl-mcp
 | `normalize_arabic` | Fold the spellings users type interchangeably into one key — strips diacritics and tatweel, unifies the alef forms. For search and matching, not for display. |
 | `detect_direction` | Whether a string is `rtl`, `ltr`, `mixed` or `neutral`, and what to set `dir` to. |
 
+Both lint tools accept `baseDir: "rtl"` for an Arabic-first app — see below.
+
 ### Why `normalize_arabic` matters
 
 `مُحَمَّد` and `محمد` are the same name and different strings. So are `أحمد` and `احمد`. A user who types their name without diacritics will not find their own record, and the bug reads like a broken database rather than a text problem.
@@ -50,6 +52,12 @@ normalize_arabic("أحـمد")    → "احمد"
 ```
 
 The two folds that change meaning — `ى → ي` and `ة → ه` — are **off by default**. They widen fuzzy search and corrupt anything you display.
+
+### Pass `baseDir: "rtl"` for an Arabic-first app
+
+Which logical side a physical one maps to depends on the document's base direction. In `ltr`, `left` is the start; in `rtl`, `left` is the end. So `text-right` in an English-first app becomes `text-end`, and in an app rooted at `<html dir="rtl">` it becomes `text-start` — the opposite edge. Take the default on an Arabic app and the agent mirrors a working layout.
+
+Utilities the author already scoped, like `ltr:left-3 rtl:right-3`, are left alone entirely.
 
 ### Why `detect_direction` is not just a regex
 

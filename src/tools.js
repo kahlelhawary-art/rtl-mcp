@@ -9,6 +9,21 @@ import { lintSource } from "rtl-lint";
 import { lintFiles } from "rtl-lint";
 import { normalizeArabic, detectDirection } from "./arabic.js";
 
+/**
+ * Validate the base direction an agent passed.
+ *
+ * Silently falling back on a typo would be the worst outcome here: the whole
+ * point of the option is that the two directions produce opposite advice, so
+ * a wrong value has to be an error the model can see and correct.
+ */
+function checkBaseDir(value) {
+  if (value === undefined) return "ltr";
+  if (value !== "ltr" && value !== "rtl") {
+    throw new Error(`baseDir must be "ltr" or "rtl", not ${JSON.stringify(value)}.`);
+  }
+  return value;
+}
+
 /** Render findings the way the CLI does, minus the colour. */
 function renderFindings(findings, subject) {
   if (findings.length === 0) return `No RTL issues found in ${subject}.`;
@@ -44,14 +59,20 @@ export const TOOLS = [
           description:
             "A filename such as Button.tsx or theme.css. Only the extension matters — it selects which rules run.",
         },
+        baseDir: {
+          type: "string",
+          enum: ["ltr", "rtl"],
+          description:
+            'The base direction of the document. Pass "rtl" when the app root is <html dir="rtl">: in an Arabic-first app "right" is the start side, so the logical replacement is the opposite one. Default "ltr".',
+        },
       },
       required: ["code", "filename"],
     },
-    async handler({ code, filename }) {
+    async handler({ code, filename, baseDir }) {
       if (typeof code !== "string" || typeof filename !== "string") {
         throw new Error("`code` and `filename` must both be strings.");
       }
-      return renderFindings(lintSource(code, filename), filename);
+      return renderFindings(lintSource(code, filename, { baseDir: checkBaseDir(baseDir) }), filename);
     },
   },
   {
@@ -62,12 +83,17 @@ export const TOOLS = [
       type: "object",
       properties: {
         path: { type: "string", description: "File or directory path to check." },
+        baseDir: {
+          type: "string",
+          enum: ["ltr", "rtl"],
+          description: 'Base direction of the app. Pass "rtl" for an Arabic-first codebase. Default "ltr".',
+        },
       },
       required: ["path"],
     },
-    async handler({ path }) {
+    async handler({ path, baseDir }) {
       if (typeof path !== "string") throw new Error("`path` must be a string.");
-      const { findings, files } = await lintFiles(path);
+      const { findings, files } = await lintFiles(path, { baseDir: checkBaseDir(baseDir) });
       return renderFindings(findings, `${files} file${files === 1 ? "" : "s"} under ${path}`);
     },
   },
