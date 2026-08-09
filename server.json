@@ -3,13 +3,13 @@
   "name": "io.github.kahlelhawary-art/rtl-mcp",
   "title": "RTL awareness for coding agents",
   "description": "Give coding agents right-to-left awareness: lint, normalise Arabic, detect direction.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "websiteUrl": "https://github.com/kahlelhawary-art/rtl-mcp",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "rtl-mcp",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "transport": {
         "type": "stdio"
       }
