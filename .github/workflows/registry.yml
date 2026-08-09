@@ -1,0 +1,39 @@
+name: Publish to the MCP registry
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Register the server
+    runs-on: ubuntu-latest
+
+    # The registry verifies this workflow's GitHub OIDC identity, which is
+    # what proves we own the io.github.kahlelhawary-art namespace. No token
+    # is stored here — same arrangement as the npm and PyPI publishes.
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install mcp-publisher
+        run: |
+          version=$(gh release view --repo modelcontextprotocol/registry --json tagName --jq '.tagName')
+          gh release download "$version" \
+            --repo modelcontextprotocol/registry \
+            --pattern 'mcp-publisher_linux_amd64.tar.gz' \
+            --output publisher.tar.gz
+          tar -xzf publisher.tar.gz mcp-publisher
+          chmod +x mcp-publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Log in with the workflow's own identity
+        run: ./mcp-publisher login github-oidc --registry=https://registry.modelcontextprotocol.io
+
+      - name: Publish
+        run: ./mcp-publisher publish
